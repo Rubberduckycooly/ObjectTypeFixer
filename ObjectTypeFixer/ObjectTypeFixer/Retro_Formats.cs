@@ -104,7 +104,8 @@ namespace Retro_Formats
         public void ImportFrom(EngineType type, string filepath)
         {
             engineType = type;
-            switch(engineType)
+            objects.Clear();
+            switch (engineType)
             {
                 case EngineType.RSDKvB:
                     RSDKvB.Scene ScenevB = new RSDKvB.Scene(filepath);
@@ -120,11 +121,12 @@ namespace Retro_Formats
                     for (int i = 0; i < ScenevB.objects.Count; i++)
                     {
                         objects.Add(new Object());
+                        objects[i].engineType = engineType;
+                        objects[i].id = i;
                         objects[i].type = ScenevB.objects[i].type;
                         objects[i].subtype = ScenevB.objects[i].subtype;
-                        objects[i].xPos = ScenevB.objects[i].xPos;
-                        objects[i].yPos = ScenevB.objects[i].yPos;
-                        objects[i].attribute = ScenevB.objects[i].attribute;
+                        objects[i].position = ScenevB.objects[i].position;
+                        objects[i].attributes = ScenevB.objects[i].attributes;
                         objects[i].AttributeType = ScenevB.objects[i].AttributeType;
                     }
                     break;
@@ -142,6 +144,8 @@ namespace Retro_Formats
                     for (int i = 0; i < Scenev2.objects.Count; i++)
                     {
                         objects.Add(new Object());
+                        objects[i].engineType = engineType;
+                        objects[i].id = i;
                         objects[i].type = Scenev2.objects[i].type;
                         objects[i].subtype = Scenev2.objects[i].subtype;
                         objects[i].xPos = Scenev2.objects[i].xPos;
@@ -162,8 +166,10 @@ namespace Retro_Formats
                     for (int i = 0; i < Scenev1.objects.Count; i++)
                     {
                         objects.Add(new Object());
+                        objects[i].engineType = engineType;
+                        objects[i].id = i;
                         objects[i].type = Scenev1.objects[i].type;
-                        objects[i].type = Scenev1.objects[i].subtype;
+                        objects[i].subtype = Scenev1.objects[i].subtype;
                         objects[i].xPos = Scenev1.objects[i].xPos;
                         objects[i].yPos = Scenev1.objects[i].yPos;
                     }
@@ -182,7 +188,7 @@ namespace Retro_Formats
                     {
                         objects.Add(new Object());
                         objects[i].type = ScenevRS.objects[i].type;
-                        objects[i].type = ScenevRS.objects[i].subtype;
+                        objects[i].subtype = ScenevRS.objects[i].subtype;
                         objects[i].xPos = ScenevRS.objects[i].xPos;
                         objects[i].yPos = ScenevRS.objects[i].yPos;
                     }
@@ -205,14 +211,13 @@ namespace Retro_Formats
                     ScenevB.height = height;
                     ScenevB.Title = Title;
                     ScenevB.MapLayout = MapLayout;
-                    for (int i = 0; i < ScenevB.objects.Count; i++)
+                    for (int i = 0; i < objects.Count; i++)
                     {
                         ScenevB.objects.Add(new RSDKvB.Object());
                         ScenevB.objects[i].type = objects[i].type;
-                        ScenevB.objects[i].type = objects[i].subtype;
-                        ScenevB.objects[i].xPos = objects[i].xPos;
-                        ScenevB.objects[i].yPos = objects[i].yPos;
-                        ScenevB.objects[i].attribute = objects[i].attribute;
+                        ScenevB.objects[i].subtype = objects[i].subtype;
+                        ScenevB.objects[i].position = objects[i].position;
+                        ScenevB.objects[i].attributes = objects[i].attributes;
                         ScenevB.objects[i].AttributeType = objects[i].AttributeType;
                     }
                     ScenevB.Write(filepath);
@@ -228,7 +233,7 @@ namespace Retro_Formats
                     Scenev2.height = height;
                     Scenev2.Title = Title;
                     Scenev2.MapLayout = MapLayout;
-                    for (int i = 0; i < Scenev2.objects.Count; i++)
+                    for (int i = 0; i < objects.Count; i++)
                     {
                         Scenev2.objects.Add(new RSDKv2.Object());
                         Scenev2.objects[i].type = objects[i].type;
@@ -249,7 +254,7 @@ namespace Retro_Formats
                     Scenev1.height = height;
                     Scenev1.Title = Title;
                     Scenev1.MapLayout = MapLayout;
-                    for (int i = 0; i < Scenev1.objects.Count; i++)
+                    for (int i = 0; i < objects.Count; i++)
                     {
                         Scenev1.objects.Add(new RSDKv1.Object());
                         Scenev1.objects[i].type = objects[i].type;
@@ -281,7 +286,7 @@ namespace Retro_Formats
                     }
 
                     ScenevRS.MapLayout = MapLayout;
-                    for (int i = 0; i < ScenevRS.objects.Count; i++)
+                    for (int i = 0; i < objects.Count; i++)
                     {
                         ScenevRS.objects.Add(new RSDKvRS.Object());
                         ScenevRS.objects[i].type = objects[i].type;
@@ -314,13 +319,37 @@ namespace Retro_Formats
         /// </summary>
         public byte subtype;
         /// <summary>
-        /// The Object's X Position
+        /// a quick way to get the X position
         /// </summary>
-        public short xPos;
+        public short xPos
+        {
+            get
+            {
+                return position.X.High;
+            }
+            set
+            {
+                position.X.High = (short)value;
+            }
+        }
         /// <summary>
-        /// The Object's Y Position
+        /// a quick way to get the Y position
         /// </summary>
-        public short yPos;
+        public short yPos
+        {
+            get
+            {
+                return position.Y.High;
+            }
+            set
+            {
+                position.Y.High = (short)value;
+            }
+        }
+        /// <summary>
+        /// The true position of the object
+        /// </summary>
+        public RSDKvB.Position position = new RSDKvB.Position();
         /// <summary>
         /// how to load the "attribute"?
         /// </summary>
@@ -328,7 +357,7 @@ namespace Retro_Formats
         /// <summary>
         /// the attribute?
         /// </summary>
-        public int attribute;
+        public uint[] attributes = new uint[14];
 
         public EngineType engineType;
 
@@ -398,11 +427,11 @@ namespace Retro_Formats
             /// <summary>
             /// Layer Width
             /// </summary>
-            public ushort width = 0;
+            public ushort width = 1;
             /// <summary>
             /// Layer Height
             /// </summary>
-            public ushort height = 0;
+            public ushort height = 1;
             /// <summary>
             /// the draw order of the layer
             /// </summary>
@@ -423,12 +452,13 @@ namespace Retro_Formats
             /// <summary>
             /// indexes to HLine values
             /// </summary>
-            public List<byte> LineIndexes = new List<byte>();
+            public byte[] LineIndexes = new byte[128];
 
             public BackgroundLayer()
             {
                 MapLayout = new ushort[1][];
                 MapLayout[0] = new ushort[1];
+                LineIndexes = new byte[height * 128];
             }
         }
 
@@ -450,6 +480,8 @@ namespace Retro_Formats
         public Background()
         {
             Layers.Add(new BackgroundLayer());
+            HLines.Add(new ScrollInfo());
+            VLines.Add(new ScrollInfo());
         }
 
         public void ImportFrom(EngineType type, string filepath)
@@ -482,9 +514,9 @@ namespace Retro_Formats
                     {
                         Layers.Add(new BackgroundLayer());
                         Layers[i].Behaviour = BGvB.Layers[i].Behaviour;
-                        Layers[i].Behaviour = BGvB.Layers[i].DrawLayer;
-                        Layers[i].Behaviour = BGvB.Layers[i].ConstantSpeed;
-                        Layers[i].Behaviour = BGvB.Layers[i].RelativeSpeed;
+                        Layers[i].DrawLayer = BGvB.Layers[i].DrawLayer;
+                        Layers[i].ConstantSpeed = BGvB.Layers[i].ConstantSpeed;
+                        Layers[i].RelativeSpeed = BGvB.Layers[i].RelativeSpeed;
                         Layers[i].width = BGvB.Layers[i].width;
                         Layers[i].height = BGvB.Layers[i].height;
                         Layers[i].MapLayout = BGvB.Layers[i].MapLayout;
@@ -516,9 +548,9 @@ namespace Retro_Formats
                     {
                         Layers.Add(new BackgroundLayer());
                         Layers[i].Behaviour = BGv2.Layers[i].Behaviour;
-                        Layers[i].Behaviour = BGv2.Layers[i].DrawLayer;
-                        Layers[i].Behaviour = BGv2.Layers[i].ConstantSpeed;
-                        Layers[i].Behaviour = BGv2.Layers[i].RelativeSpeed;
+                        Layers[i].DrawLayer = BGv2.Layers[i].DrawLayer;
+                        Layers[i].ConstantSpeed = BGv2.Layers[i].ConstantSpeed;
+                        Layers[i].RelativeSpeed = BGv2.Layers[i].RelativeSpeed;
                         Layers[i].width = BGv2.Layers[i].width;
                         Layers[i].height = BGv2.Layers[i].height;
                         Layers[i].MapLayout = BGv2.Layers[i].MapLayout;
@@ -548,8 +580,8 @@ namespace Retro_Formats
                     {
                         Layers.Add(new BackgroundLayer());
                         Layers[i].Behaviour = BGv1.Layers[i].Deform;
-                        Layers[i].Behaviour = BGv1.Layers[i].ConstantSpeed;
-                        Layers[i].Behaviour = BGv1.Layers[i].RelativeSpeed;
+                        Layers[i].ConstantSpeed = BGv1.Layers[i].ConstantSpeed;
+                        Layers[i].RelativeSpeed = BGv1.Layers[i].RelativeSpeed;
                         Layers[i].width = BGv1.Layers[i].width;
                         Layers[i].height = BGv1.Layers[i].height;
                         Layers[i].MapLayout = BGv1.Layers[i].MapLayout;
@@ -579,8 +611,8 @@ namespace Retro_Formats
                     {
                         Layers.Add(new BackgroundLayer());
                         Layers[i].Behaviour = BGvRS.Layers[i].Deform;
-                        Layers[i].Behaviour = BGvRS.Layers[i].ConstantSpeed;
-                        Layers[i].Behaviour = BGvRS.Layers[i].RelativeSpeed;
+                        Layers[i].ConstantSpeed = BGvRS.Layers[i].ConstantSpeed;
+                        Layers[i].RelativeSpeed = BGvRS.Layers[i].RelativeSpeed;
                         Layers[i].width = BGvRS.Layers[i].width;
                         Layers[i].height = BGvRS.Layers[i].height;
                         Layers[i].MapLayout = BGvRS.Layers[i].MapLayout;
@@ -624,7 +656,24 @@ namespace Retro_Formats
                         BGvB.Layers[i].RelativeSpeed = Layers[i].RelativeSpeed;
                         BGvB.Layers[i].width = Layers[i].width;
                         BGvB.Layers[i].height = Layers[i].height;
-                        BGvB.Layers[i].MapLayout = Layers[i].MapLayout;
+
+                        //Checks to make sure the data fits the format
+                        if (Layers[i].width > 65535) Layers[i].width = 65535;
+                        if (Layers[i].height > 65535) Layers[i].height = 65535;
+                        ushort[][] newLayout = new ushort[Layers[i].height][];
+                        for (int ii = 0; ii < Layers[i].height; ii++)
+                        {
+                            newLayout[ii] = new ushort[Layers[i].width];
+                        }
+                        for (int y = 0; y < Layers[i].height; y++)
+                        {
+                            for (int x = 0; x < Layers[i].width; x++)
+                            {
+                                newLayout[y][x] = Layers[i].MapLayout[y][x];
+                            }
+                        }
+
+                        BGvB.Layers[i].MapLayout = newLayout;
                         BGvB.Layers[i].LineIndexes = Layers[i].LineIndexes;
                     }
                     BGvB.Write(filepath);
@@ -657,6 +706,8 @@ namespace Retro_Formats
                         BGv2.Layers[i].DrawLayer = Layers[i].DrawLayer;
                         BGv2.Layers[i].ConstantSpeed = Layers[i].ConstantSpeed;
                         BGv2.Layers[i].RelativeSpeed = Layers[i].RelativeSpeed;
+                        BGv2.Layers[i].width = (byte)Layers[i].width;
+                        BGv2.Layers[i].height = (byte)Layers[i].height;
 
                         //Checks to make sure the data fits the format
                         if (Layers[i].width > 255) Layers[i].width = 255;
@@ -668,9 +719,9 @@ namespace Retro_Formats
                         }
                         for (int y = 0; y < Layers[i].height; y++)
                         {
-                            for (int x = 0; x < Layers[i].height; x++)
+                            for (int x = 0; x < Layers[i].width; x++)
                             {
-                                newLayout[y][x] = Layers[i].MapLayout[x][y];
+                                newLayout[y][x] = Layers[i].MapLayout[y][x];
                             }
                         }
 
@@ -706,6 +757,8 @@ namespace Retro_Formats
                         BGv1.Layers[i].Deform = Layers[i].Behaviour;
                         BGv1.Layers[i].ConstantSpeed = Layers[i].ConstantSpeed;
                         BGv1.Layers[i].RelativeSpeed = Layers[i].RelativeSpeed;
+                        BGv1.Layers[i].width = (byte)Layers[i].width;
+                        BGv1.Layers[i].height = (byte)Layers[i].height;
 
                         //Checks to make sure the data fits the format
                         if (Layers[i].width > 255) Layers[i].width = 255;
@@ -717,9 +770,9 @@ namespace Retro_Formats
                         }
                         for (int y = 0; y < Layers[i].height; y++)
                         {
-                            for (int x = 0; x < Layers[i].height; x++)
+                            for (int x = 0; x < Layers[i].width; x++)
                             {
-                                newLayout[y][x] = Layers[i].MapLayout[x][y];
+                                newLayout[y][x] = Layers[i].MapLayout[y][x];
                             }
                         }
 
@@ -755,6 +808,8 @@ namespace Retro_Formats
                         BGvRS.Layers[i].Deform = Layers[i].Behaviour;
                         BGvRS.Layers[i].ConstantSpeed = Layers[i].ConstantSpeed;
                         BGvRS.Layers[i].RelativeSpeed = Layers[i].RelativeSpeed;
+                        BGvRS.Layers[i].width = (byte)Layers[i].width;
+                        BGvRS.Layers[i].height = (byte)Layers[i].height;
 
                         //Checks to make sure the data fits the format
                         if (Layers[i].width > 255) Layers[i].width = 255;
@@ -766,9 +821,9 @@ namespace Retro_Formats
                         }
                         for (int y = 0; y < Layers[i].height; y++)
                         {
-                            for (int x = 0; x < Layers[i].height; x++)
+                            for (int x = 0; x < Layers[i].width; x++)
                             {
-                                newLayout[y][x] = Layers[i].MapLayout[x][y];
+                                newLayout[y][x] = Layers[i].MapLayout[y][x];
                             }
                         }
 
@@ -1515,7 +1570,7 @@ namespace Retro_Formats
         /// <summary>
         /// the category list (stage list)
         /// </summary>
-       public Category[] Categories = new Category[4];
+        public Category[] Categories = new Category[4];
 
         public EngineType engineType;
 
@@ -1668,7 +1723,7 @@ namespace Retro_Formats
                     GameconfigvB.ObjectsNames = ObjectsNames;
                     for (int i = 0; i < GameconfigvB.Players.Count; i++)
                     {
-                        GameconfigvB.Players[i]= Players[i].PlayerName;
+                        GameconfigvB.Players[i] = Players[i].PlayerName;
                     }
                     for (int i = 0; i < GameconfigvB.ScriptPaths.Count; i++)
                     {
